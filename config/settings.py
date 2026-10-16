@@ -78,16 +78,27 @@ USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# DEV ONLY: trust the X-User-Id header instead of a JWT (replaced in build step 3).
+# DEV ONLY: trust the X-User-Id header when no Bearer token is sent.
 # Defaults to DEBUG, so it is off whenever DEBUG is off.
 DEV_AUTH_ENABLED = env.bool("DEV_AUTH_ENABLED", default=DEBUG)
+
+# JWT validation (tokens are issued by Identity & Profiles; agree on these values with them).
+# HS256: JWT_SIGNING_KEY is the shared secret. RS256: it is the PUBLIC key in PEM format
+# (write newlines as \n inside .env). Empty key means every Bearer token is rejected.
+JWT_ALGORITHM = env("JWT_ALGORITHM", default="HS256")
+JWT_SIGNING_KEY = env("JWT_SIGNING_KEY", default="").replace("\\n", "\n")
+JWT_USER_ID_CLAIM = env("JWT_USER_ID_CLAIM", default="user_id")
+JWT_ROLE_CLAIM = env("JWT_ROLE_CLAIM", default="role")
 
 # Shared secret that trusted services send in the X-Service-Token header.
 # Empty means the internal endpoint rejects every request (fail closed).
 INTERNAL_SERVICE_TOKEN = env("INTERNAL_SERVICE_TOKEN", default="")
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.DevHeaderAuthentication"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.JWTAuthentication",
+        "api.authentication.DevHeaderAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
