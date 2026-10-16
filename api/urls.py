@@ -15,4 +15,9 @@ urlpatterns = [
         views.MarkReadView.as_view(),
         name="notification_mark_read",
     ),
+    path(
+        "internal/notifications/",
+        views.InternalNotificationCreateView.as_view(),
+        name="internal_notification_create",
+    ),
 ]

@@ -82,6 +82,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Defaults to DEBUG, so it is off whenever DEBUG is off.
 DEV_AUTH_ENABLED = env.bool("DEV_AUTH_ENABLED", default=DEBUG)
 
+# Shared secret that trusted services send in the X-Service-Token header.
+# Empty means the internal endpoint rejects every request (fail closed).
+INTERNAL_SERVICE_TOKEN = env("INTERNAL_SERVICE_TOKEN", default="")
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.DevHeaderAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
