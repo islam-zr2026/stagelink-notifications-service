@@ -23,7 +23,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    def get_is_read(self, notification):
+    def get_is_read(self, notification) -> bool:
         return notification.read_at is not None
 
 

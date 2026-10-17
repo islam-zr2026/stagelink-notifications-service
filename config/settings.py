@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "api",
 ]
 
@@ -102,4 +103,26 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# OpenAPI documentation served at /api/schema/ and /api/docs/.
+SPECTACULAR_SETTINGS = {
+    "TITLE": "STAGELINK Notifications & Communication API",
+    "DESCRIPTION": (
+        "In-app notifications: users read their own notifications; trusted services "
+        "create them with the X-Service-Token header."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "serviceToken": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Service-Token",
+                "description": "Shared secret known only by trusted services.",
+            }
+        }
+    },
 }

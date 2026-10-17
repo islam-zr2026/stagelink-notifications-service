@@ -1,0 +1,37 @@
+# Standalone setup for the Notifications service: the service + its own PostgreSQL.
+# The team's shared docker-compose will contain an equivalent "notifications" service
+# (each service keeps its own database).
+#
+# Usage:  docker compose up --build
+# Needs a .env file (copy .env.example). DB_HOST and DB_PORT are overridden below.
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME:-notifications_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - notifications_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-notifications_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  notifications:
+    build: .
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
+
+volumes:
+  notifications_db_data:
